@@ -1,0 +1,159 @@
+openapi: 3.0.3
+info:
+  title: SnipSnap
+  description: |-
+    This is a snapchat replica with basic features. Accounts are integrated with [Sign In With Apple](https://developer.apple.com/sign-in-with-apple/). Users can add and manage friends, and block and report users.
+  contact:
+    email: snipsnap.app.contact@gmail.com
+  version: 1.0.0
+servers:
+  - url: https://9bmj338lj2.execute-api.us-west-1.amazonaws.com/
+tags:
+  - name: login
+    description: login using Sign In With Apple
+  - name: account
+    description: Create and customize an account
+  - name: friends
+    description: Add and remove friends
+  - name: messaging
+    description: Send and get messages
+paths:
+  /get-nonce:
+    post:
+      tags:
+        - login
+      summary: Give a nonce to a user for use with Sign In With Apple
+      description: Take a device id, set a nonce value in dynamodb, and return that value
+      operationId: getNonce
+      requestBody:
+        description: Get a nonce for a user to use with Sign In With Apple
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetNonceRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNonceResponse'
+        '400':
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /login:
+    post:
+      tags:
+        - login
+      summary: Log in using Sign In With Apple
+      operationId: login
+      parameters:
+        - in: header
+          name: X-UserId
+          description: The Sign In With Apple userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: header
+          name: Authorization
+          description: The Sign In With Apple token issued to the client by Apple
+          schema:
+            type: string
+            format: byte
+          required: true
+        - in: header
+          name: X-DeviceId
+          description: The id of the device used to validate nonce
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        description: Login using Sign In With Apple
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Client Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+    GetNonceRequest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+    GetNonceResponse:
+      type: object
+      properties:
+        nonce:
+          type: string
+    LoginRequest:
+      type: object
+      properties:
+        apnsDeviceToken:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        hasUsername:
+          type: boolean
+        hasDisplayName:
+          type: boolean
+        hasProfilePicture:
+          type: boolean

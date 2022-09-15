@@ -1,0 +1,40 @@
+{
+  "version": "2.0",
+  "type": "REQUEST",
+  "routeArn": "arn:aws:execute-api:us-west-2:174026058454:7osxrt1c19/$default/POST/test2",
+  "identitySource": null,
+  "routeKey": "POST /test2",
+  "rawPath": "/test2",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "*/*",
+    "accept-encoding": "deflate, gzip",
+    "content-length": "0",
+    "content-type": "application/json",
+    "host": "7osxrt1c19.execute-api.us-west-2.amazonaws.com",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Safari/605.1.15 X-Middleton/1",
+    "x-amzn-trace-id": "Root=1-631a4d4d-7b1443754fa706384b5da08b",
+    "x-forwarded-for": "206.189.205.251",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https",
+    "x-real-ip": "69.162.231.82"
+  },
+  "requestContext": {
+    "accountId": "174026058454",
+    "apiId": "7osxrt1c19",
+    "domainName": "7osxrt1c19.execute-api.us-west-2.amazonaws.com",
+    "domainPrefix": "7osxrt1c19",
+    "http": {
+      "method": "POST",
+      "path": "/test2",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "206.189.205.251",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Safari/605.1.15 X-Middleton/1"
+    },
+    "requestId": "YKEEMhpPPHcEPbQ=",
+    "routeKey": "POST /test2",
+    "stage": "$default",
+    "time": "08/Sep/2022:20:15:09 +0000",
+    "timeEpoch": 1662668109818
+  }
+}
