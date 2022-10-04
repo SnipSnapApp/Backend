@@ -7,16 +7,10 @@ info:
     email: snipsnap.app.contact@gmail.com
   version: 1.0.0
 servers:
-  - url: https://9bmj338lj2.execute-api.us-west-1.amazonaws.com/
+  - url: https://9bmj338lj2.execute-api.us-west-1.amazonaws.com/  # TODO this will change
 tags:
   - name: login
     description: login using Sign In With Apple
-  - name: account
-    description: Create and customize an account
-  - name: friends
-    description: Add and remove friends
-  - name: messaging
-    description: Send and get messages
 paths:
   /get-nonce:
     post:
