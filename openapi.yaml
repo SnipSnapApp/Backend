@@ -133,17 +133,8 @@ components:
           type: string
     LoginRequest:
       type: object
-      properties:
-        apnsDeviceToken:
-          type: string
     LoginResponse:
       type: object
       properties:
-        accessToken:
+        serverMessage:
           type: string
-        hasUsername:
-          type: boolean
-        hasDisplayName:
-          type: boolean
-        hasProfilePicture:
-          type: boolean
