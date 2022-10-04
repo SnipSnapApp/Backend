@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Josh Bedwell. All rights reserved.
  */
 
-use lambda_http::{Body, Error, Request, RequestExt, Response, run, service_fn};
+use lambda_http::{Body, Error, Request, Response, run, service_fn};
 use serde::{Deserialize, Serialize};
 use snipsnap_lib::database::NoncesTable;
 use snipsnap_lib::http::{HttpErrorResponse, HttpResponseGenerator};
@@ -18,13 +18,13 @@ struct GetNonceResponse {
     nonce: String,
 }
 
-async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
+async fn handler(event: Request) -> Result<Response<Body>, Error> {
     if let Ok(decoded) = String::from_utf8(event.body().to_vec()) {
         if let Ok(deserialized) = serde_json::from_str::<GetNonceRequest>(&decoded) {
             return match NoncesTable::make_nonce(&*deserialized.deviceId).await {
                 Ok(nonce) => {
                     let body = GetNonceResponse { nonce };
-                    HttpResponseGenerator::response(400, &body)
+                    HttpResponseGenerator::response(200, &body)
                 },
                 Err(e) => {
                     let body = HttpErrorResponse::new(format!("Error making nonce: {e}"));
@@ -34,8 +34,8 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
         }
     }
 
-    let body = HttpErrorResponse::new(format!("Error decoding body"));
-    return HttpResponseGenerator::response(400, &body)
+    let body = HttpErrorResponse::new("Error decoding body".to_string());
+    HttpResponseGenerator::response(400, &body)
 }
 
 #[tokio::main]
@@ -48,13 +48,5 @@ async fn main() -> Result<(), Error> {
         .without_time()
         .init();
 
-    run(service_fn(function_handler)).await
-}
-
-#[cfg(test)]
-mod test {
-    #[tokio::test]
-    async fn test() {
-        assert!(true)
-    }
+    run(service_fn(handler)).await
 }
