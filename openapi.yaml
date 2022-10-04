@@ -7,7 +7,7 @@ info:
     email: snipsnap.app.contact@gmail.com
   version: 1.0.0
 servers:
-  - url: https://9bmj338lj2.execute-api.us-west-1.amazonaws.com/  # TODO this will change
+  - url: https://7osxrt1c19.execute-api.us-west-2.amazonaws.com/
 tags:
   - name: login
     description: login using Sign In With Apple
