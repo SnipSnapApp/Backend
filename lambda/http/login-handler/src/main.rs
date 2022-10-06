@@ -3,7 +3,7 @@
  */
 
 use lambda_http::{Body, Error, Request, Response, run, service_fn};
-use snipsnap_lib::database::NoncesTable;
+use snipsnap_lib::database::LoginsTable;
 use snipsnap_lib::http::{HttpErrorResponse, HttpResponseGenerator};
 
 use crate::response::NonceResetResponse;
@@ -11,16 +11,9 @@ use crate::response::NonceResetResponse;
 mod response;
 
 async fn function_handler(_event: Request) -> Result<Response<Body>, Error> {
-    match NoncesTable::reset_nonces().await {
-        Ok(_) => {
-            let body = NonceResetResponse { success: true };
-            HttpResponseGenerator::response(200, &body)
-        },
-        Err(e) => {
-            let body = HttpErrorResponse::new(format!("{e}"));
-            HttpResponseGenerator::response(500, &body)
-        }
-    }
+    // get userId from event body
+    // record in database
+    // return
 }
 
 #[tokio::main]

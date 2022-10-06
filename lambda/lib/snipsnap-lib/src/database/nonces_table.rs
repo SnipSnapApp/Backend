@@ -4,7 +4,7 @@
 
 use aws_sdk_dynamodb::{Client, Config, Region};
 use aws_sdk_dynamodb::model::{AttributeDefinition, AttributeValue, KeySchemaElement, KeyType, ProvisionedThroughput, ScalarAttributeType, Select};
-use aws_sdk_dynamodb::output::{CreateTableOutput, DeleteTableOutput};
+// use aws_sdk_dynamodb::output::{CreateTableOutput, DeleteTableOutput};
 use rand::{Rng, thread_rng};
 use rand::distributions::Alphanumeric;
 
@@ -73,38 +73,6 @@ impl NoncesTable {
         }
     }
 
-    pub async fn get_nonce(device_id: &str) -> Result<String, Error> {
-        match Self::read_nonce(device_id).await {
-            Ok(nonce) => {
-                match Self::client().delete_item()
-                    .table_name(TABLE_NAME)
-                    .key(DEVICE_ID_ATTRIBUTE, AttributeValue::S(String::from(device_id)))
-                    .send()
-                    .await
-                {
-                    Ok(_) => Ok(nonce),
-                    Err(e) => Err(Error::DeleteItem(e))
-                }
-            }
-            Err(e) => Err(e)
-        }
-    }
-}
-
-// admin functionality
-impl NoncesTable {
-    pub async fn reset_nonces() -> Result<(), Error> {
-        match Self::delete_table().await {
-            Err(e) => return Err(e),
-            _ => {}
-        }
-        match Self::create_table().await {
-            Err(e) => return Err(e),
-            _ => {}
-        }
-        Ok(())
-    }
-
     pub async fn read_nonce(device_id: &str) -> Result<String, Error> {
         match Self::client().query()
             .table_name(TABLE_NAME)
@@ -134,49 +102,111 @@ impl NoncesTable {
             Err(e) => Err(Error::Query(e))
         }
     }
+
+    pub async fn get_nonce(device_id: &str) -> Result<String, Error> {
+        match Self::read_nonce(device_id).await {
+            Ok(nonce) => {
+                match Self::client().delete_item()
+                    .table_name(TABLE_NAME)
+                    .key(DEVICE_ID_ATTRIBUTE, AttributeValue::S(String::from(device_id)))
+                    .send()
+                    .await
+                {
+                    Ok(_) => Ok(nonce),
+                    Err(e) => Err(Error::DeleteItem(e))
+                }
+            }
+            Err(e) => Err(e)
+        }
+    }
 }
+
+// admin functionality
+// impl NoncesTable {
+//     pub async fn reset_nonces() -> Result<(), Error> {
+//         match Self::delete_table().await {
+//             Err(e) => return Err(e),
+//             _ => {}
+//         }
+//         match Self::create_table().await {
+//             Err(e) => return Err(e),
+//             _ => {}
+//         }
+//         Ok(())
+//     }
+//
+//     pub async fn read_nonce(device_id: &str) -> Result<String, Error> {
+//         match Self::client().query()
+//             .table_name(TABLE_NAME)
+//             .key_condition_expression("#key = :value")
+//             .expression_attribute_names("#key", DEVICE_ID_ATTRIBUTE)
+//             .expression_attribute_values(":value", AttributeValue::S(String::from(device_id)))
+//             .select(Select::AllAttributes)
+//             .send()
+//             .await
+//         {
+//             Ok(resp) => {
+//                 if resp.count() > 0 {
+//                     if let Some(items) = resp.items() {
+//                         if let Some(first) = items.first() {
+//                             if let Some(attribute_value) = first.get(NONCE_ATTRIBUTE) {
+//                                 if let AttributeValue::S(nonce) = attribute_value {
+//                                     return Ok(String::from(nonce))
+//                                 }
+//                             }
+//                         }
+//                     }
+//                     Err(Error::AttributeError)
+//                 } else {
+//                     Err(Error::NotFound)
+//                 }
+//             },
+//             Err(e) => Err(Error::Query(e))
+//         }
+//     }
+// }
 
 // create and delete table
-impl NoncesTable {
-    pub async fn create_table() -> Result<CreateTableOutput, Error> {
-        let ad = AttributeDefinition::builder()
-            .attribute_name(DEVICE_ID_ATTRIBUTE)
-            .attribute_type(ScalarAttributeType::S)
-            .build();
-
-        let ks = KeySchemaElement::builder()
-            .attribute_name(DEVICE_ID_ATTRIBUTE)
-            .key_type(KeyType::Hash)
-            .build();
-
-        let pt = ProvisionedThroughput::builder()
-            .read_capacity_units(READ_CAPACITY_UNITS)
-            .write_capacity_units(WRITE_CAPACITY_UNITS)
-            .build();
-
-        Self::client().create_table()
-            .table_name(TABLE_NAME)
-            .key_schema(ks)
-            .attribute_definitions(ad)
-            .provisioned_throughput(pt)
-            .send()
-            .await
-            .map_err(Error::CreateTable)
-    }
-
-    pub async fn delete_table() -> Result<DeleteTableOutput, Error> {
-        Self::client().delete_table()
-            .table_name(TABLE_NAME)
-            .send()
-            .await
-            .map_err(Error::DeleteTable)
-    }
-}
+// impl NoncesTable {
+//     pub async fn create_table() -> Result<CreateTableOutput, Error> {
+//         let ad = AttributeDefinition::builder()
+//             .attribute_name(DEVICE_ID_ATTRIBUTE)
+//             .attribute_type(ScalarAttributeType::S)
+//             .build();
+//
+//         let ks = KeySchemaElement::builder()
+//             .attribute_name(DEVICE_ID_ATTRIBUTE)
+//             .key_type(KeyType::Hash)
+//             .build();
+//
+//         let pt = ProvisionedThroughput::builder()
+//             .read_capacity_units(READ_CAPACITY_UNITS)
+//             .write_capacity_units(WRITE_CAPACITY_UNITS)
+//             .build();
+//
+//         Self::client().create_table()
+//             .table_name(TABLE_NAME)
+//             .key_schema(ks)
+//             .attribute_definitions(ad)
+//             .provisioned_throughput(pt)
+//             .send()
+//             .await
+//             .map_err(Error::CreateTable)
+//     }
+//
+//     pub async fn delete_table() -> Result<DeleteTableOutput, Error> {
+//         Self::client().delete_table()
+//             .table_name(TABLE_NAME)
+//             .send()
+//             .await
+//             .map_err(Error::DeleteTable)
+//     }
+// }
 
 // constants
 const TABLE_NAME: &str = "nonces";
 const DEVICE_ID_ATTRIBUTE: &str = "deviceId";
 const NONCE_ATTRIBUTE: &str = "nonce";
 const NONCE_LENGTH: usize = 30;
-const READ_CAPACITY_UNITS: i64 = 5;
-const WRITE_CAPACITY_UNITS: i64 = 5;
+// const READ_CAPACITY_UNITS: i64 = 5;
+// const WRITE_CAPACITY_UNITS: i64 = 5;
