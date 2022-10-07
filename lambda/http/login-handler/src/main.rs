@@ -3,17 +3,33 @@
  */
 
 use lambda_http::{Body, Error, Request, Response, run, service_fn};
+use serde::Serialize;
 use snipsnap_lib::database::LoginsTable;
 use snipsnap_lib::http::{HttpErrorResponse, HttpResponseGenerator};
 
-use crate::response::NonceResetResponse;
+#[derive(Serialize)]
+struct LoginResponse {
+    message: String,
+}
 
-mod response;
+async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
+    if let Some(user_id_header) = event.headers().get("X-UserId") {
+        if let Ok(user_id) = user_id_header.to_str() {
+            return match LoginsTable::record_login(user_id).await {
+                Ok(_) => {
+                    let body = LoginResponse { message: "Login successful and logged!".to_string() };
+                    HttpResponseGenerator::response(200, &body)
+                },
+                Err(e) => {
+                    let body = HttpErrorResponse::new(format!("Error recording login: {e}"));
+                    HttpResponseGenerator::response(500, &body)
+                }
+            }
+        }
+    }
 
-async fn function_handler(_event: Request) -> Result<Response<Body>, Error> {
-    // get userId from event body
-    // record in database
-    // return
+    let body = HttpErrorResponse::new("Could not get X-UserId header".to_string());
+    HttpResponseGenerator::response(400, &body)
 }
 
 #[tokio::main]

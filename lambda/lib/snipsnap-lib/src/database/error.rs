@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Josh Bedwell. All rights reserved.
  */
 
-use aws_sdk_dynamodb::error::{CreateTableError, DeleteItemError, DeleteTableError, PutItemError, QueryError, UpdateItemError};
+use aws_sdk_dynamodb::error::{DeleteItemError, PutItemError, QueryError, UpdateItemError};
 use aws_sdk_dynamodb::types::SdkError;
 use thiserror::Error;
 
@@ -16,10 +16,6 @@ pub enum Error {
     UpdateItem(#[from] SdkError<UpdateItemError>),
     #[error("Failed to delete item")]
     DeleteItem(#[from] SdkError<DeleteItemError>),
-    #[error("Failed to create table")]
-    CreateTable(#[from] SdkError<CreateTableError>),
-    #[error("Failed to delete table")]
-    DeleteTable(#[from] SdkError<DeleteTableError>),
     #[error("Item not found")]
     NotFound,
     #[error("Some item(s) were found but there was an error retrieving attributes")]

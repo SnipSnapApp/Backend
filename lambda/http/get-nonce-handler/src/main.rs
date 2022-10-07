@@ -28,7 +28,7 @@ async fn handler(event: Request) -> Result<Response<Body>, Error> {
                 },
                 Err(e) => {
                     let body = HttpErrorResponse::new(format!("Error making nonce: {e}"));
-                    HttpResponseGenerator::response(400, &body)
+                    HttpResponseGenerator::response(500, &body)
                 }
             }
         }

@@ -3,7 +3,8 @@
  */
 
 use aws_sdk_dynamodb::{Client, Config, Region};
-use aws_sdk_dynamodb::model::{AttributeDefinition, AttributeValue, KeySchemaElement, KeyType, ProvisionedThroughput, ScalarAttributeType, Select};
+use aws_sdk_dynamodb::model::AttributeValue;
+use chrono::prelude::*;
 
 use crate::database::Error;
 use crate::REGION;
@@ -20,12 +21,12 @@ impl LoginsTable {
 }
 
 impl LoginsTable {
-    pub async fn record_login(user_id: &str, successful: bool) -> Result<(), Error> {
+    pub async fn record_login(user_id: &str) -> Result<(), Error> {
         match Self::client()
             .put_item()
             .table_name(TABLE_NAME)
             .item(USER_ID_ATTRIBUTE, AttributeValue::S(user_id.to_string()))
-            .item(TIMESTAMP_ATTRIBUTE, AttributeValue::S("".to_string()))
+            .item(TIMESTAMP_ATTRIBUTE, AttributeValue::S(Utc::now().to_string()))
             .send()
             .await
         {
